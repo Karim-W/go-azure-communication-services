@@ -26,7 +26,7 @@ create an identity client
 
 ```go
 
-resourceHost := "https://my-resource.communication.azure.com" // microsoft calls this endpoint
+resourceHost := "my-resource.communication.azure.com" // microsoft calls this endpoint
 accessKey := "my-access-key"
 
 roomsClient := rooms.NewClient(resourceHost, accessKey)
