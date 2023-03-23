@@ -2,6 +2,10 @@ package rooms
 
 import "time"
 
+const (
+	apiVersion = "2022-02-01"
+)
+
 type CreateRoomOptions struct {
 	ValidFrom      time.Time          `json:"validFrom,omitempty"`
 	ValidUntil     time.Time          `json:"validUntil,omitempty"`

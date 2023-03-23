@@ -1,6 +1,10 @@
 package rooms
 
-import "context"
+import (
+	"context"
+
+	"github.com/karim-w/stdlib/httpclient"
+)
 
 type Rooms interface {
 	CreateRoom(
@@ -21,6 +25,20 @@ func (c *_RoomsClient) CreateRoom(
 	ctx context.Context,
 	options *CreateRoomOptions,
 ) (*RoomModel, error) {
-	// ...
-	return nil, nil
+	if options == nil {
+		return nil, ERR_ROOMS_CREATE_ROOM_NIL_OPTIONS
+	}
+	res := httpclient.Req(c.url+"/rooms?api-version="+apiVersion).
+		AddBody(options).
+		AddHeader("Content-Type", "application/json").
+		Post()
+	if !res.IsSuccess() {
+		return nil, res.CatchError()
+	}
+	responseModel := &RoomModel{}
+	err := res.SetResult(responseModel)
+	if err != nil {
+		return nil, err
+	}
+	return responseModel, nil
 }
