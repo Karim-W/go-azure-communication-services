@@ -13,13 +13,26 @@ type UserTuple struct {
 
 func CreateRoomParticipant(
 	id string,
-	role string,
+	role Role,
 ) RoomParticipant {
 	return RoomParticipant{
-		Role:                    role,
-		CommunicationIdentifier: id,
+		Role: role,
+		CommunicationIdentifier: CommunicationIdentifier{
+			RawID: id,
+			CommunicationUser: CommunicationUser{
+				ID: id,
+			},
+		},
 	}
 }
+
+type Role string
+
+const (
+	PRESENTER Role = "Presenter"
+	ATTENDEE  Role = "Attendee"
+	CONSUMER  Role = "Consumer"
+)
 
 type CreateRoomOptions struct {
 	ValidFrom      time.Time         `json:"validFrom"`
@@ -38,8 +51,17 @@ type RoomModel struct {
 }
 
 type RoomParticipant struct {
-	CommunicationIdentifier string `json:"communicationIdentifier"`
-	Role                    string `json:"role"`
+	CommunicationIdentifier CommunicationIdentifier `json:"communicationIdentifier"`
+	Role                    Role                    `json:"role,omitempty"`
+}
+
+type CommunicationIdentifier struct {
+	RawID             string            `json:"rawId"`
+	CommunicationUser CommunicationUser `json:"communicationUser"`
+}
+
+type CommunicationUser struct {
+	ID string `json:"id"`
 }
 
 // type CommunicationIdentifierModel struct {
