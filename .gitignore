@@ -1,0 +1,3 @@
+client/client_nonmock_test.go
+identity/id_test.go
+rooms/rooms_test.go
