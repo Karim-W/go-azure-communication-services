@@ -1,9 +1,7 @@
 # go-azure-communication-services
 
-**UNOFFICIAL** and **NON-STABLE** GoLang SDK for Azure Communication Services
+**UNOFFICIAL** GoLang SDK for Azure Communication Services
 with support for identity and rooms.
-
-> all of the functions **NEED** to be retried in case of failure as testing shows the ACS Azure resource is unstable
 
 ## usage
 
@@ -89,11 +87,13 @@ room, err := roomsClient.CreateRoom(
     ValidFrom: time.Now(),
     ValidUntil: time.Now().Add(time.Hour * 24),
     RoomJoinPolicy: "InviteOnly",
+    Participants: []rooms.RoomParticipant{
+      CreateRoomParticipant(id, PRESENTER),
+      CreateRoomParticipant(id, ATTENDEE),
+    },
   },
 )
 ```
-
-> Adding participants to the room seem to be broken
 
 ### get room
 
@@ -126,6 +126,48 @@ err := roomsClient.DeleteRoom(
   roomId,
 )
 ```
+
+### get room participants
+
+```go
+participants, err := roomsClient.GetRoomParticipants(
+  context.Background(),
+  roomId,
+)
+```
+
+### add room participants
+
+```go
+participants, err := roomsClient.AddRoomParticipants(
+  context.Background(),
+  roomId,
+  CreateRoomParticipant(id, PRESENTER),
+  CreateRoomParticipant(id, ATTENDEE),
+)
+```
+
+### remove room participants
+
+```go
+err := roomsClient.RemoveRoomParticipants(
+  context.Background(),
+  roomId,
+  RemoveRoomParticipant(id),
+)
+```
+
+### Update room participants
+
+```go
+participants, err := roomsClient.UpdateRoomParticipants(
+  context.Background(),
+  roomId,
+  CreateRoomParticipant(id, PRESENTER),
+)
+```
+
+> Please Refer to the tests for more examples on how to use the rooms SDK.
 
 ## References
 
