@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -83,7 +84,7 @@ func (c *Client) Patch(
 	// Compute a content hash for the 'x-ms-content-sha256' header.
 	contentHash := computeContentHash(body)
 	// Prepare a string to sign.
-	stringToSign := fmt.Sprintf("POST\n%s\n%s;%s;%s", resource+"?"+query, date, host, contentHash)
+	stringToSign := fmt.Sprintf("PATCH\n%s\n%s;%s;%s", resource+"?"+query, date, host, contentHash)
 
 	// Compute the signature.
 	signature := computeSignature(stringToSign, c.key)
@@ -105,10 +106,10 @@ func (c *Client) Patch(
 		"Content-Type", "application/json",
 	).AddBody(
 		reqbody,
-	).Post()
+	).Patch()
 	responseBody := res.GetBody()
 	if !res.IsSuccess() {
-		return fmt.Errorf("request failed: %s", string(responseBody))
+		return errors.New(string(responseBody))
 	}
 	if len(responseBody) == 0 {
 		return nil
@@ -163,7 +164,7 @@ func (c *Client) Post(
 	).Post()
 	responseBody := res.GetBody()
 	if !res.IsSuccess() {
-		return fmt.Errorf("request failed: %s", string(responseBody))
+		return errors.New(string(responseBody))
 	}
 	if len(responseBody) == 0 {
 		return nil
@@ -202,7 +203,7 @@ func (c *Client) Delete(
 	).AddBody(reqBody).Del()
 	responseBody := res.GetBody()
 	if !res.IsSuccess() {
-		return fmt.Errorf("request failed: %s", string(responseBody))
+		return errors.New(string(responseBody))
 	}
 	if len(responseBody) == 0 {
 		return nil
@@ -241,7 +242,7 @@ func (c *Client) Get(
 	).AddBody(reqBody).Get()
 	responseBody := res.GetBody()
 	if !res.IsSuccess() {
-		return fmt.Errorf("request failed: %s", string(responseBody))
+		return errors.New(string(responseBody))
 	}
 	if len(responseBody) == 0 {
 		return nil
