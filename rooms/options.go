@@ -6,11 +6,6 @@ const (
 	apiVersion = "2022-02-01"
 )
 
-type UserTuple struct {
-	AcsId string `json:"userId"`
-	Role  string `json:"role"`
-}
-
 func CreateRoomParticipant(
 	id string,
 	role Role,
@@ -19,26 +14,53 @@ func CreateRoomParticipant(
 		Role: role,
 		CommunicationIdentifier: CommunicationIdentifier{
 			RawID: id,
-			CommunicationUser: CommunicationUser{
-				ID: id,
-			},
+			Id:    id,
 		},
 	}
 }
 
-type Role string
+func RemoveRoomParticipant(
+	id string,
+) RoomParticipant {
+	return RoomParticipant{
+		CommunicationIdentifier: CommunicationIdentifier{
+			RawID: id,
+			Id:    id,
+		},
+	}
+}
+
+type (
+	RoomJoinPolicy string
+	Role           string
+)
 
 const (
-	PRESENTER Role = "Presenter"
-	ATTENDEE  Role = "Attendee"
-	CONSUMER  Role = "Consumer"
+	PRESENTER                  Role           = "Presenter"
+	ATTENDEE                   Role           = "Attendee"
+	CONSUMER                   Role           = "Consumer"
+	INVITE_ONLY                RoomJoinPolicy = "InviteOnly"
+	COMMUNICATION_SERVICE_USER RoomJoinPolicy = "CommunicationServiceUsers"
 )
 
 type CreateRoomOptions struct {
 	ValidFrom      time.Time         `json:"validFrom"`
 	ValidUntil     time.Time         `json:"validUntil"`
-	RoomJoinPolicy string            `json:"roomJoinPolicy"`
+	RoomJoinPolicy RoomJoinPolicy    `json:"roomJoinPolicy"`
 	Participants   []RoomParticipant `json:"participants,omitempty"`
+}
+
+func (c *CreateRoomOptions) isValid() bool {
+	if c.ValidFrom.IsZero() || c.ValidUntil.IsZero() {
+		return false
+	}
+	if c.ValidFrom.After(c.ValidUntil) {
+		return false
+	}
+	if c.RoomJoinPolicy == "" {
+		return false
+	}
+	return true
 }
 
 type RoomModel struct {
@@ -46,7 +68,7 @@ type RoomModel struct {
 	CreatedDateTime time.Time         `json:"createdDateTime,omitempty"`
 	ValidFrom       time.Time         `json:"validFrom,omitempty"`
 	ValidUntil      time.Time         `json:"validUntil,omitempty"`
-	RoomJoinPolicy  string            `json:"roomJoinPolicy,omitempty"`
+	RoomJoinPolicy  RoomJoinPolicy    `json:"roomJoinPolicy,omitempty"`
 	Participants    []RoomParticipant `json:"participants,omitempty"`
 }
 
@@ -55,22 +77,26 @@ type RoomParticipant struct {
 	Role                    Role                    `json:"role,omitempty"`
 }
 
+type roomParticipantsUpdate struct {
+	Participants []RoomParticipant `json:"participants"`
+}
+
 type CommunicationIdentifier struct {
-	RawID             string            `json:"rawId"`
-	CommunicationUser CommunicationUser `json:"communicationUser"`
-}
-
-type CommunicationUser struct {
-	ID string `json:"id"`
-}
-
-// type CommunicationIdentifierModel struct {
-// 	RawId             string                           `json:"rawId"`
-// 	CommunicationUser CommunicationUserIdentifierModel `json:"communicationUser"`
-// }
-
-type CommunicationUserIdentifierModel struct {
-	Id string `json:"communicationUserId"`
+	RawID string `json:"rawId"`
+	Id    string `json:"id"`
 }
 
 type UpdateRoomOptions CreateRoomOptions
+
+func (c *UpdateRoomOptions) isValid() bool {
+	if c.ValidFrom.IsZero() || c.ValidUntil.IsZero() {
+		return false
+	}
+	if c.ValidFrom.After(c.ValidUntil) {
+		return false
+	}
+	if c.RoomJoinPolicy == "" {
+		return false
+	}
+	return true
+}
