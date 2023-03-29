@@ -112,7 +112,12 @@ func (c *_RoomsClient) UpdateRoom(
 		c.host,
 		"/rooms/"+roomId,
 		"api-version="+apiVersion,
-		options,
+		RoomModel{
+			ValidFrom:      options.ValidFrom,
+			ValidUntil:     options.ValidUntil,
+			Participants:   options.Participants,
+			RoomJoinPolicy: options.RoomJoinPolicy,
+		},
 		&responseModel,
 	)
 	if err != nil {
@@ -139,26 +144,26 @@ func (c *_RoomsClient) AddParticipants(
 	roomId string,
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
-	responseModel := &[]RoomParticipant{}
+	responseModel := &roomParticipantsUpdate{}
 	err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:add",
 		"api-version="+apiVersion,
-		Participants,
+		roomParticipantsUpdate{Participants},
 		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+	return &responseModel.Participants, nil
 }
 
 func (c *_RoomsClient) GetParticipants(
 	ctx context.Context,
 	roomId string,
 ) (*[]RoomParticipant, error) {
-	responseModel := &[]RoomParticipant{}
+	responseModel := &roomParticipantsUpdate{}
 	err := c.client.Get(
 		ctx,
 		c.host,
@@ -169,7 +174,7 @@ func (c *_RoomsClient) GetParticipants(
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+	return &responseModel.Participants, nil
 }
 
 func (c *_RoomsClient) UpdateParticipants(
@@ -177,19 +182,19 @@ func (c *_RoomsClient) UpdateParticipants(
 	roomId string,
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
-	responseModel := &[]RoomParticipant{}
+	responseModel := &roomParticipantsUpdate{}
 	err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:update",
 		"api-version="+apiVersion,
-		Participants,
+		roomParticipantsUpdate{Participants},
 		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+	return &responseModel.Participants, nil
 }
 
 func (c *_RoomsClient) RemoveParticipants(
@@ -197,17 +202,17 @@ func (c *_RoomsClient) RemoveParticipants(
 	roomId string,
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
-	responseModel := &[]RoomParticipant{}
+	responseModel := &roomParticipantsUpdate{}
 	err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:remove",
 		"api-version="+apiVersion,
-		Participants,
+		roomParticipantsUpdate{Participants},
 		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+	return &responseModel.Participants, nil
 }
