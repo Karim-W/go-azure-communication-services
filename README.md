@@ -177,13 +177,10 @@ participants, err := roomsClient.UpdateRoomParticipants(
 ```go
 chatThread, err := chatClient.CreateChatThread(
   context.Background(),
-  &chat.CreateChatThreadOptions{
-    Topic: "test",
-    Participants: []chat.ChatParticipant{
-    {Id: id, DisplayName: "test"},
-    {Id: id2, DisplayName: "test2"},
-  },
-})
+	"test",
+	ChatUser{ID: id, DisplayName: "test"},
+	ChatUser{ID: id2, DisplayName: "test2"},
+)
 ```
 
 ### Delete ChatThread
