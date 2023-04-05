@@ -69,3 +69,12 @@ type issueAccessTokenResponse struct {
 	Token     string    `json:"token"`
 	ExpiresOn time.Time `json:"expiresOn"`
 }
+
+type CommunicationIdentifier struct {
+	RawID             string            `json:"rawId"`
+	CommunicationUser CommunicationUser `json:"communicationUser"`
+}
+
+type CommunicationUser struct {
+	ID string `json:"id"`
+}
