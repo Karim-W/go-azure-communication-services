@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2023-04-05
+
+### Features
+
+- Added common communication identities
+- Added Chat Package for creating and deleting chat threads
+
 ## [0.1.0] - 2023-03-29
 
 ### Bug Fixes

@@ -1,7 +1,7 @@
 # go-azure-communication-services
 
 **UNOFFICIAL** GoLang SDK for Azure Communication Services
-with support for identity and rooms.
+with support for identity and rooms and ChatThreads.
 
 ## usage
 
@@ -17,6 +17,7 @@ import the package
 import (
   "github.com/karim-w/go-azure-communication-services/rooms"
   "github.com/karim-w/go-azure-communication-services/identity"
+  "github.com/karim-w/go-azure-communication-services/chat"
 )
 ```
 
@@ -169,10 +170,36 @@ participants, err := roomsClient.UpdateRoomParticipants(
 
 > Please Refer to the tests for more examples on how to use the rooms SDK.
 
+## ChatThreads
+
+### Create ChatThread
+
+```go
+chatThread, err := chatClient.CreateChatThread(
+  context.Background(),
+  &chat.CreateChatThreadOptions{
+    Topic: "test",
+    Participants: []chat.ChatParticipant{
+    {Id: id, DisplayName: "test"},
+    {Id: id2, DisplayName: "test2"},
+  },
+})
+```
+
+### Delete ChatThread
+
+```go
+err := chatClient.DeleteChatThread(
+  context.Background(),
+  chatThreadId,
+)
+```
+
 ## References
 
 - [Identity API](https://learn.microsoft.com/en-us/rest/api/communication/communication-identity)
 - [Rooms API](https://learn.microsoft.com/en-us/rest/api/communication/rooms)
+- [Chat API](https://learn.microsoft.com/en-us/rest/api/communication/chat/chat)
 
 ## License
 
