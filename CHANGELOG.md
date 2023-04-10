@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2023-04-10
+
+### Refactor
+
+- Chat client token will have to be provided
+
 ## [0.1.1] - 2023-04-05
 
 ### Features
