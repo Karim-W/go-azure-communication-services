@@ -20,6 +20,10 @@ type Chat interface {
 		ctx context.Context,
 		threadID string,
 	) error
+	WithToken(
+		token string,
+		ExpiresAt time.Time,
+	) Chat
 }
 
 type _chat struct {
@@ -27,47 +31,32 @@ type _chat struct {
 	client     *client.Client
 	token      string
 	validUntil time.Time
-	ic         identity.Identity
 }
 
 func New(host string, key string) (Chat, error) {
 	client := client.New(key)
-	ic := identity.New(host, key)
-	id, err := ic.CreateIdentity(context.TODO(), &identity.CreateIdentityOptions{
-		CreateTokenWithScopes: []string{"chat"},
-		ExpiresInMinutes:      60 * 24,
-	})
-	if err != nil {
-		return nil, err
-	}
 	return &_chat{
-		host:       host,
-		client:     client,
-		token:      id.Token,
-		ic:         ic,
-		validUntil: time.Now().Add(time.Minute * 60 * 23),
+		host:   host,
+		client: client,
+		token:  "",
 	}, nil
 }
 
-func (c *_chat) refreshToken() error {
-	id, err := c.ic.CreateIdentity(context.TODO(), &identity.CreateIdentityOptions{
-		CreateTokenWithScopes: []string{"chat"},
-		ExpiresInMinutes:      60 * 24,
-	})
-	if err != nil {
-		return err
-	}
-	c.token = id.Token
-	c.validUntil = time.Now().Add(time.Minute * 60 * 23)
-	return nil
+func NewWithToken(host string, token string, expiresAt time.Time) (Chat, error) {
+	return &_chat{
+		host:       host,
+		client:     nil,
+		token:      token,
+		validUntil: expiresAt,
+	}, nil
 }
 
 func (c *_chat) getToken() (string, error) {
 	if time.Now().After(c.validUntil) {
-		err := c.refreshToken()
-		if err != nil {
-			return "", err
-		}
+		return "", ERR_EXPIRED_TOKEN
+	}
+	if c.token == "" {
+		return "", ERR_NO_TOKEN_PROVIDED
 	}
 	return c.token, nil
 }
@@ -133,4 +122,13 @@ func (c *_chat) DeleteChatThread(
 	}
 	err = fmt.Errorf(string(res.GetBody()))
 	return err
+}
+
+func (c *_chat) WithToken(
+	token string,
+	ExpiresAt time.Time,
+) Chat {
+	c.token = token
+	c.validUntil = ExpiresAt
+	return c
 }

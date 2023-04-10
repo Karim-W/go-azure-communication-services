@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+
 	"github.com/karim-w/go-azure-communication-services/identity"
 )
 
@@ -10,6 +12,11 @@ type CreateChatThread struct {
 }
 
 const _apiVersion = "2021-09-07"
+
+var (
+	ERR_EXPIRED_TOKEN     = fmt.Errorf("token expired")
+	ERR_NO_TOKEN_PROVIDED = fmt.Errorf("no token provided")
+)
 
 type Participant struct {
 	CommunicationIdentifier identity.CommunicationIdentifier `json:"communicationIdentifier"`
