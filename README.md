@@ -192,6 +192,28 @@ err := chatClient.DeleteChatThread(
 )
 ```
 
+### Add ChatThread Participants
+
+```go
+participants, err := chatClient.AddChatThreadParticipants(
+  context.Background(),
+  chatThreadId,
+  ChatUser{ID: id, DisplayName: "test"},
+  ChatUser{ID: id2, DisplayName: "test2"},
+)
+```
+
+### Remove ChatThread Participants
+
+```go
+err := chatClient.RemoveChatThreadParticipants(
+  context.Background(),
+  chatThreadId,
+  id,
+  id2,
+)
+```
+
 ## References
 
 - [Identity API](https://learn.microsoft.com/en-us/rest/api/communication/communication-identity)
