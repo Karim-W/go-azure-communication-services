@@ -20,6 +20,16 @@ type Chat interface {
 		ctx context.Context,
 		threadID string,
 	) error
+	AddChatParticipants(
+		ctx context.Context,
+		threadID string,
+		participants ...ChatUser,
+	) error
+	RemoveChatParticipant(
+		ctx context.Context,
+		threadID string,
+		participant identity.CommunicationIdentifier,
+	) error
 	WithToken(
 		token string,
 		ExpiresAt time.Time,
@@ -31,15 +41,55 @@ type _chat struct {
 	client     *client.Client
 	token      string
 	validUntil time.Time
+	idc        *identity.Identity
+	id         string
 }
 
 func New(host string, key string) (Chat, error) {
+	identityClient := identity.New(host, key)
+	user, err := identityClient.CreateIdentity(
+		context.Background(),
+		&identity.CreateIdentityOptions{
+			CreateTokenWithScopes: []string{"chat", "void"},
+			ExpiresInMinutes:      60,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, fmt.Errorf("failed to create identity")
+	}
 	client := client.New(key)
 	return &_chat{
-		host:   host,
-		client: client,
-		token:  "",
+		host:       host,
+		client:     client,
+		token:      user.Token,
+		validUntil: user.ExpiresOn,
+		idc:        &identityClient,
+		id:         user.ID,
 	}, nil
+}
+
+func (c *_chat) refreshToken() error {
+	client := *c.idc
+	user, err := client.IssueAccessToken(
+		context.Background(),
+		c.id,
+		&identity.IssueTokenOptions{
+			ExpiresInMinutes: 60,
+			Scopes:           []string{"chat", "void"},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fmt.Errorf("failed to create identity")
+	}
+	c.token = user.Token
+	c.validUntil = user.ExpiresOn
+	return nil
 }
 
 func NewWithToken(host string, token string, expiresAt time.Time) (Chat, error) {
@@ -53,7 +103,14 @@ func NewWithToken(host string, token string, expiresAt time.Time) (Chat, error) 
 
 func (c *_chat) getToken() (string, error) {
 	if time.Now().After(c.validUntil) {
-		return "", ERR_EXPIRED_TOKEN
+		if c.idc != nil && c.id != "" {
+			err := c.refreshToken()
+			if err != nil {
+				return c.token, err
+			} else {
+				return "", ERR_EXPIRED_TOKEN
+			}
+		}
 	}
 	if c.token == "" {
 		return "", ERR_NO_TOKEN_PROVIDED
@@ -131,4 +188,62 @@ func (c *_chat) WithToken(
 	c.token = token
 	c.validUntil = ExpiresAt
 	return c
+}
+
+func (c *_chat) AddChatParticipants(
+	ctx context.Context,
+	threadID string,
+	participants ...ChatUser,
+) error {
+	token, err := c.getToken()
+	if err != nil {
+		return err
+	}
+	req := []Participant{}
+	for _, p := range participants {
+		req = append(req, Participant{
+			CommunicationIdentifier: identity.CommunicationIdentifier{
+				RawID: p.ID,
+				CommunicationUser: identity.CommunicationUser{
+					ID: p.ID,
+				},
+			},
+			DisplayName: p.DisplayName,
+		})
+	}
+	res := httpclient.Req(
+		"https://"+c.host+"/chat/threads/"+threadID+"/participants/:add?api-version="+_apiVersion,
+	).AddBearerAuth(
+		token,
+	).AddHeader("Content-Type", "application/json").
+		AddBody(map[string]interface{}{
+			"participants": req,
+		}).Post()
+	if res.IsSuccess() {
+		return nil
+	}
+	err = fmt.Errorf(string(res.GetBody()))
+	return err
+}
+
+func (c *_chat) RemoveChatParticipant(
+	ctx context.Context,
+	threadID string,
+	participant identity.CommunicationIdentifier,
+) error {
+	token, err := c.getToken()
+	if err != nil {
+		return err
+	}
+	res := httpclient.Req(
+		"https://"+c.host+"/chat/threads/"+threadID+"/participants/:remove?api-version="+_apiVersion,
+	).AddBearerAuth(
+		token,
+	).AddHeader("Content-Type", "application/json").
+		AddBody(participant).Post()
+	if res.IsSuccess() {
+		return nil
+	}
+	err = fmt.Errorf(string(res.GetBody()))
+	return err
 }
