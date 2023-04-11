@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/karim-w/go-azure-communication-services/identity"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -106,12 +105,7 @@ func TestRemoveChatParticipant(t *testing.T) {
 	err = client.RemoveChatParticipant(
 		context.Background(),
 		thread.ChatThread.ID,
-		identity.CommunicationIdentifier{
-			RawID: id2,
-			CommunicationUser: identity.CommunicationUser{
-				ID: id2,
-			},
-		},
+		id,
 	)
 	assert.Nil(t, err)
 }

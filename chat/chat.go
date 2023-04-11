@@ -28,7 +28,7 @@ type Chat interface {
 	RemoveChatParticipant(
 		ctx context.Context,
 		threadID string,
-		participant identity.CommunicationIdentifier,
+		acsId string,
 	) error
 	WithToken(
 		token string,
@@ -229,7 +229,7 @@ func (c *_chat) AddChatParticipants(
 func (c *_chat) RemoveChatParticipant(
 	ctx context.Context,
 	threadID string,
-	participant identity.CommunicationIdentifier,
+	acsId string,
 ) error {
 	token, err := c.getToken()
 	if err != nil {
@@ -240,7 +240,12 @@ func (c *_chat) RemoveChatParticipant(
 	).AddBearerAuth(
 		token,
 	).AddHeader("Content-Type", "application/json").
-		AddBody(participant).Post()
+		AddBody(identity.CommunicationIdentifier{
+			RawID: acsId,
+			CommunicationUser: identity.CommunicationUser{
+				ID: acsId,
+			},
+		}).Post()
 	if res.IsSuccess() {
 		return nil
 	}
