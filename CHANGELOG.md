@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2023-04-11
+
+### Documentation
+
+- Updated README with info for adding/removing users to chat
+- Updated docs with singular chat user remove updates
+
+### Features
+
+- Added functionalities for adding/removing participants and hybrid idenity methods
+
+### Refactor
+
+- Singular remove particpant from chat
+
+### Testing
+
+- Added tests for identity functions
+
 ## [0.1.2] - 2023-04-10
 
 ### Refactor
