@@ -195,7 +195,7 @@ err := chatClient.DeleteChatThread(
 ### Add ChatThread Participants
 
 ```go
-participants, err := chatClient.AddChatThreadParticipants(
+participants, err := chatClient.AddChatParticipants(
   context.Background(),
   chatThreadId,
   ChatUser{ID: id, DisplayName: "test"},
@@ -206,11 +206,10 @@ participants, err := chatClient.AddChatThreadParticipants(
 ### Remove ChatThread Participants
 
 ```go
-err := chatClient.RemoveChatThreadParticipants(
+err := chatClient.RemoveChatParticipant(
   context.Background(),
   chatThreadId,
   id,
-  id2,
 )
 ```
 
