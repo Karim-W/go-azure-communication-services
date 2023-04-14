@@ -14,6 +14,7 @@ type CreateChatThread struct {
 const _apiVersion = "2021-09-07"
 
 var (
+	ERR_UNAUTHORIZED      = fmt.Errorf("unauthorized")
 	ERR_EXPIRED_TOKEN     = fmt.Errorf("token expired")
 	ERR_NO_TOKEN_PROVIDED = fmt.Errorf("no token provided")
 )

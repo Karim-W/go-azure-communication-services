@@ -51,7 +51,7 @@ func New(host string, key string) (Chat, error) {
 		context.Background(),
 		&identity.CreateIdentityOptions{
 			CreateTokenWithScopes: []string{"chat", "voip"},
-			ExpiresInMinutes:      60,
+			ExpiresInMinutes:      1440,
 		},
 	)
 	if err != nil {
@@ -77,7 +77,7 @@ func (c *_chat) refreshToken() error {
 		context.Background(),
 		c.id,
 		&identity.IssueTokenOptions{
-			ExpiresInMinutes: 60,
+			ExpiresInMinutes: 1440,
 			Scopes:           []string{"chat", "void"},
 		},
 	)
@@ -155,6 +155,9 @@ func (c *_chat) CreateChatThread(
 		}
 		return &response, nil
 	}
+	if res.GetStatusCode() == 401 {
+		return nil, ERR_UNAUTHORIZED
+	}
 	err = fmt.Errorf(string(res.GetBody()))
 	return nil, err
 }
@@ -176,6 +179,9 @@ func (c *_chat) DeleteChatThread(
 		Del()
 	if res.IsSuccess() {
 		return nil
+	}
+	if res.GetStatusCode() == 401 {
+		return ERR_UNAUTHORIZED
 	}
 	err = fmt.Errorf(string(res.GetBody()))
 	return err
@@ -222,6 +228,9 @@ func (c *_chat) AddChatParticipants(
 	if res.IsSuccess() {
 		return nil
 	}
+	if res.GetStatusCode() == 401 {
+		return ERR_UNAUTHORIZED
+	}
 	err = fmt.Errorf(string(res.GetBody()))
 	return err
 }
@@ -248,6 +257,9 @@ func (c *_chat) RemoveChatParticipant(
 		}).Post()
 	if res.IsSuccess() {
 		return nil
+	}
+	if res.GetStatusCode() == 401 {
+		return ERR_UNAUTHORIZED
 	}
 	err = fmt.Errorf(string(res.GetBody()))
 	return err
