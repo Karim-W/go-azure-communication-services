@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2023-04-14
+
+### Features
+
+- Verbose unauthorized error messages && 24h expiry on client identity
+
+## [0.1.4] - 2023-04-14
+
+### Bug Fixes
+
+- Voip identity scope
+
 ## [0.1.3] - 2023-04-11
 
 ### Documentation
