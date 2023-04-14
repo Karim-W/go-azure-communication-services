@@ -50,7 +50,7 @@ func New(host string, key string) (Chat, error) {
 	user, err := identityClient.CreateIdentity(
 		context.Background(),
 		&identity.CreateIdentityOptions{
-			CreateTokenWithScopes: []string{"chat", "void"},
+			CreateTokenWithScopes: []string{"chat", "voip"},
 			ExpiresInMinutes:      60,
 		},
 	)
