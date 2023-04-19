@@ -34,15 +34,20 @@ type Chat interface {
 		token string,
 		ExpiresAt time.Time,
 	) Chat
+	GetToken() (string, error)
+	SetTokenFetcher(
+		fetcher func() (string, error),
+	)
 }
 
 type _chat struct {
-	host       string
-	client     *client.Client
-	token      string
-	validUntil time.Time
-	idc        *identity.Identity
-	id         string
+	host         string
+	client       *client.Client
+	token        string
+	validUntil   time.Time
+	idc          *identity.Identity
+	id           string
+	tokenFetcher *func() (string, error)
 }
 
 func New(host string, key string) (Chat, error) {
@@ -118,12 +123,25 @@ func (c *_chat) getToken() (string, error) {
 	return c.token, nil
 }
 
+func (c *_chat) GetToken() (string, error) {
+	if c.tokenFetcher != nil {
+		return (*c.tokenFetcher)()
+	}
+	return c.getToken()
+}
+
+func (c *_chat) SetTokenFetcher(
+	fetcher func() (string, error),
+) {
+	c.tokenFetcher = &fetcher
+}
+
 func (c *_chat) CreateChatThread(
 	ctx context.Context,
 	topic string,
 	participants ...ChatUser,
 ) (*CreateChatThreadResponse, error) {
-	token, err := c.getToken()
+	token, err := c.GetToken()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +184,7 @@ func (c *_chat) DeleteChatThread(
 	ctx context.Context,
 	threadID string,
 ) error {
-	token, err := c.getToken()
+	token, err := c.GetToken()
 	if err != nil {
 		return err
 	}
@@ -201,7 +219,7 @@ func (c *_chat) AddChatParticipants(
 	threadID string,
 	participants ...ChatUser,
 ) error {
-	token, err := c.getToken()
+	token, err := c.GetToken()
 	if err != nil {
 		return err
 	}
@@ -240,7 +258,7 @@ func (c *_chat) RemoveChatParticipant(
 	threadID string,
 	acsId string,
 ) error {
-	token, err := c.getToken()
+	token, err := c.GetToken()
 	if err != nil {
 		return err
 	}

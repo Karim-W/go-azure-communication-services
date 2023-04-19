@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -16,6 +17,37 @@ var (
 	token    = ""
 	threadId = ""
 )
+
+func TestTokenSetter(t *testing.T) {
+	c := _chat{}
+	setter := func() (string, error) {
+		return "test", nil
+	}
+	c.SetTokenFetcher(setter)
+	assert.NotNil(t, c.tokenFetcher)
+}
+
+func TestTokenGetter(t *testing.T) {
+	c := _chat{}
+	setter := func() (string, error) {
+		return "test", nil
+	}
+	c.SetTokenFetcher(setter)
+	token, err := c.GetToken()
+	assert.Nil(t, err)
+	assert.Equal(t, "test", token)
+}
+
+func TestTokenGetterWithError(t *testing.T) {
+	c := _chat{}
+	setter := func() (string, error) {
+		return "", fmt.Errorf("test")
+	}
+	c.SetTokenFetcher(setter)
+	token, err := c.GetToken()
+	assert.NotNil(t, err)
+	assert.Equal(t, "", token)
+}
 
 func TestCreateChatThread(t *testing.T) {
 	client, err := New(host, key)
