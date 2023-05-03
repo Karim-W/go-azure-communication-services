@@ -40,7 +40,7 @@ const (
 	ATTENDEE                   Role           = "Attendee"
 	CONSUMER                   Role           = "Consumer"
 	INVITE_ONLY                RoomJoinPolicy = "InviteOnly"
-	COMMUNICATION_SERVICE_USER RoomJoinPolicy = "CommunicationServiceUsers"
+	COMMUNICATION_SERVICE_USER RoomJoinPolicy = "communicationServiceUsers"
 )
 
 type CreateRoomOptions struct {
