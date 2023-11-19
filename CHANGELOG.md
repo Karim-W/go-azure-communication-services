@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2023-11-19
+
+### Bug Fixes
+
+- Open room user key
+
+### Documentation
+
+- Updated docs to include emails
+
+### Features
+
+- Added email sending to sdk
+
+## [0.1.6-alpha1] - 2023-04-19
+
+### Features
+
+- Token setter and getter for chat client
+
 ## [0.1.5] - 2023-04-14
 
 ### Features
