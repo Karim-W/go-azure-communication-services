@@ -177,9 +177,9 @@ participants, err := roomsClient.UpdateRoomParticipants(
 ```go
 chatThread, err := chatClient.CreateChatThread(
   context.Background(),
-	"test",
-	ChatUser{ID: id, DisplayName: "test"},
-	ChatUser{ID: id2, DisplayName: "test2"},
+ "test",
+ ChatUser{ID: id, DisplayName: "test"},
+ ChatUser{ID: id2, DisplayName: "test2"},
 )
 ```
 
@@ -213,11 +213,39 @@ err := chatClient.RemoveChatParticipant(
 )
 ```
 
+## Emails
+
+### Send Email
+
+```go
+ client := emails.NewClient(host, key, nil)
+ payload := emails.Payload{
+  Headers: emails.Headers{
+   ClientCorrelationID:    "1234",
+   ClientCustomHeaderName: "ClientCustomHeaderValue",
+  },
+  SenderAddress: "<ACS_EMAIL>"
+  Content: emails.Content{
+   Subject:   "Test email",
+   PlainText: "This is a test email",
+  },
+  Recipients: emails.Recipients{
+   To: []emails.ReplyTo{
+    {
+     Address: "<EMAIL_ADDRESS>",
+    },
+   },
+  },
+ }
+ result, err := client.SendEmail(context.TODO(), payload)
+```
+
 ## References
 
 - [Identity API](https://learn.microsoft.com/en-us/rest/api/communication/communication-identity)
 - [Rooms API](https://learn.microsoft.com/en-us/rest/api/communication/rooms)
 - [Chat API](https://learn.microsoft.com/en-us/rest/api/communication/chat/chat)
+- [Email API](https://learn.microsoft.com/en-us/rest/api/communication/dataplane/email?view=rest-communication-dataplane-2023-03-31)
 
 ## License
 
