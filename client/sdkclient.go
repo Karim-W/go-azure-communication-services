@@ -162,13 +162,19 @@ func (c *Client) Post(
 	).AddBody(
 		reqbody,
 	).Post()
+
 	responseBody := res.GetBody()
+
+	fmt.Println("responseBody", string(responseBody))
+
 	if !res.IsSuccess() {
 		return errors.New(string(responseBody))
 	}
+
 	if len(responseBody) == 0 {
 		return nil
 	}
+
 	return json.Unmarshal(responseBody, &response)
 }
 
