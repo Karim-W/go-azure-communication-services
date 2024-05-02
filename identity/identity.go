@@ -3,7 +3,8 @@ package identity
 import (
 	"context"
 
-	"github.com/karim-w/go-azure-communication-services/client"
+	"github.com/karim-w/go-azure-communication-services/clientv2"
+	"github.com/karim-w/go-azure-communication-services/logger"
 )
 
 type Identity interface {
@@ -27,7 +28,7 @@ type Identity interface {
 }
 
 type _Identity struct {
-	client *client.Client
+	client clientv2.Client
 	host   string
 }
 
@@ -35,91 +36,26 @@ func New(
 	host string,
 	key string,
 ) Identity {
-	client := client.New(key)
+	client := clientv2.New(key)
 	return &_Identity{
 		client: client,
 		host:   host,
 	}
 }
 
-func (i *_Identity) CreateIdentity(
-	ctx context.Context,
-	opts *CreateIdentityOptions,
-) (*ACSIdentity, error) {
-	err := opts.isValid()
-	if err != nil {
-		return nil, err
+func NewWithLogger(
+	host string,
+	key string,
+	Logger logger.Logger,
+) Identity {
+	if Logger == nil {
+		Logger = logger.Default()
 	}
-	var response createIdentityResponse
-	err = i.client.Post(
-		ctx,
-		i.host,
-		"/identities",
-		"api-version="+apiVersion,
-		opts,
-		&response,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &ACSIdentity{
-		ID:        response.Identity.ID,
-		Token:     response.AccessToken.Token,
-		ExpiresOn: response.AccessToken.ExpiresOn,
-	}, nil
-}
 
-func (i *_Identity) IssueAccessToken(
-	ctx context.Context,
-	acsId string,
-	opts *IssueTokenOptions,
-) (*ACSIdentity, error) {
-	if err := opts.isValid(); err != nil {
-		return nil, err
-	}
-	var response issueAccessTokenResponse
-	err := i.client.Post(
-		ctx,
-		i.host,
-		"/identities/"+acsId+"/:issueAccessToken",
-		"api-version="+apiVersion,
-		opts,
-		&response,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &ACSIdentity{
-		ID:        acsId,
-		Token:     response.Token,
-		ExpiresOn: response.ExpiresOn,
-	}, nil
-}
+	client := clientv2.NewWithLogger(key, Logger)
 
-func (i *_Identity) RevokeAccessToken(
-	ctx context.Context,
-	acsId string,
-) error {
-	return i.client.Post(
-		ctx,
-		i.host,
-		"/identities/"+acsId+"/:revokeAccessTokens",
-		"api-version="+apiVersion,
-		nil,
-		nil,
-	)
-}
-
-func (i *_Identity) DeleteIdentity(
-	ctx context.Context,
-	acsId string,
-) error {
-	return i.client.Delete(
-		ctx,
-		i.host,
-		"/identities/"+acsId,
-		"api-version="+apiVersion,
-		nil,
-	)
-	// return nil
+	return &_Identity{
+		client: client,
+		host:   host,
+	}
 }
