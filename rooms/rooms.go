@@ -3,7 +3,7 @@ package rooms
 import (
 	"context"
 
-	"github.com/karim-w/go-azure-communication-services/client"
+	"github.com/karim-w/go-azure-communication-services/clientv2"
 )
 
 type Rooms interface {
@@ -47,14 +47,14 @@ type Rooms interface {
 
 type _RoomsClient struct {
 	host   string
-	client *client.Client
+	client clientv2.Client
 }
 
 func New(
 	host string,
 	key string,
 ) Rooms {
-	client := client.New(key)
+	client := clientv2.New(key)
 	return &_RoomsClient{host, client}
 }
 

@@ -165,8 +165,6 @@ func (c *Client) Post(
 
 	responseBody := res.GetBody()
 
-	fmt.Println("responseBody", string(responseBody))
-
 	if !res.IsSuccess() {
 		return errors.New(string(responseBody))
 	}

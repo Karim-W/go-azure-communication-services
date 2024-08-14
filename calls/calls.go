@@ -57,7 +57,40 @@ func New(host string, key string) (Call, error) {
 		return nil, fmt.Errorf("failed to create identity")
 	}
 
-	client := clientv2.NewWithLogger(key, logger.Default())
+	client := clientv2.New(key)
+
+	return &_calls{
+		host:       host,
+		client:     client,
+		token:      user.Token,
+		validUntil: user.ExpiresOn,
+		idc:        &identityClient,
+		id:         user.ID,
+	}, nil
+}
+
+func NewWithLogger(host string, key string, Logger logger.Logger) (Call, error) {
+	identityClient := identity.New(host, key)
+	user, err := identityClient.CreateIdentity(
+		context.Background(),
+		&identity.CreateIdentityOptions{
+			CreateTokenWithScopes: []string{"voip"},
+			ExpiresInMinutes:      1440,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("failed to create identity")
+	}
+
+	if Logger == nil {
+		Logger = logger.Default()
+	}
+
+	client := clientv2.NewWithLogger(key, Logger)
 
 	return &_calls{
 		host:       host,

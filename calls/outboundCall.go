@@ -23,7 +23,7 @@ func (c *_calls) CreateOutBoundCall(
 
 	var outboundCall OutboundCall
 
-	reader, err := c.client.Post(
+	response, err := c.client.Post(
 		ctx,
 		c.host,
 		"/calling/callConnections",
@@ -37,7 +37,7 @@ func (c *_calls) CreateOutBoundCall(
 	}
 
 	// decode the response
-	err = json.NewDecoder(reader).Decode(&outboundCall)
+	err = json.Unmarshal(response, &outboundCall)
 	if err != nil {
 		return nil, err
 	}
