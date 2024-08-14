@@ -2,6 +2,7 @@ package rooms
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -15,7 +16,19 @@ var (
 	roomid = ""
 )
 
+func precheck() {
+	host = os.Getenv("ACS_HOST")
+	key = os.Getenv("ACS_KEY")
+	id = os.Getenv("ACS_USER_ID")
+	roomid = os.Getenv("ACS_ROOM_ID")
+}
+
 func TestCreateRoom(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || id == "" {
+		t.Skip("no host, key or id")
+	}
+
 	client := New(host, key)
 	room, err := client.CreateRoom(
 		context.TODO(),
@@ -28,11 +41,19 @@ func TestCreateRoom(t *testing.T) {
 			},
 		},
 	)
+
+	t.Log("created room", room.Id)
+
 	assert.Nil(t, err)
 	assert.NotNil(t, room)
 }
 
 func TestGetRoom(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" {
+		t.Skip("no host, key or roomid")
+	}
+
 	client := New(host, key)
 	room, err := client.GetRoom(
 		context.TODO(),
@@ -43,6 +64,11 @@ func TestGetRoom(t *testing.T) {
 }
 
 func TestUpdateRoom(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" || id == "" {
+		t.Skip("no host, key, roomid or id")
+	}
+
 	client := New(host, key)
 	room, err := client.UpdateRoom(
 		context.TODO(),
@@ -61,6 +87,11 @@ func TestUpdateRoom(t *testing.T) {
 }
 
 func TestDeleteRoom(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" {
+		t.Skip("no host, key or roomid")
+	}
+
 	client := New(host, key)
 	err := client.DeleteRoom(
 		context.TODO(),
@@ -70,6 +101,11 @@ func TestDeleteRoom(t *testing.T) {
 }
 
 func TestAddParticipant(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" || id == "" {
+		t.Skip("no host, key, roomid or id")
+	}
+
 	client := New(host, key)
 	room, err := client.AddParticipants(
 		context.TODO(),
@@ -81,6 +117,10 @@ func TestAddParticipant(t *testing.T) {
 }
 
 func TestGetParticipants(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" {
+		t.Skip("no host, key or roomid")
+	}
 	client := New(host, key)
 	room, err := client.GetParticipants(
 		context.TODO(),
@@ -91,6 +131,11 @@ func TestGetParticipants(t *testing.T) {
 }
 
 func TestUpdateParticipants(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" || id == "" {
+		t.Skip("no host, key, roomid or id")
+	}
+
 	client := New(host, key)
 	room, err := client.UpdateParticipants(
 		context.TODO(),
@@ -102,6 +147,11 @@ func TestUpdateParticipants(t *testing.T) {
 }
 
 func TestRemoveParticipant(t *testing.T) {
+	precheck()
+	if host == "" || key == "" || roomid == "" || id == "" {
+		t.Skip("no host, key, roomid or id")
+	}
+
 	client := New(host, key)
 	room, err := client.RemoveParticipants(
 		context.TODO(),
