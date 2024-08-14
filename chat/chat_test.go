@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -10,10 +11,10 @@ import (
 )
 
 var (
-	host     = ""
-	key      = ""
-	id       = ""
-	id2      = ""
+	host     = os.Getenv("ACS_HOST")
+	key      = os.Getenv("ACS_KEY")
+	id       = os.Getenv("ACS_USER_ID")
+	id2      = os.Getenv("ACS_USER_ID2")
 	token    = ""
 	threadId = ""
 )
