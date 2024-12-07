@@ -5,7 +5,7 @@ type Payload struct {
 	SenderAddress                  string       `json:"senderAddress"`
 	Content                        Content      `json:"content"`
 	Recipients                     Recipients   `json:"recipients"`
-	Attachments                    []Attachment `json:"attachments"`
+	Attachments                    []Attachment `json:"attachments,omitempty"`
 	ReplyTo                        []ReplyTo    `json:"replyTo"`
 	UserEngagementTrackingDisabled bool         `json:"userEngagementTrackingDisabled"`
 }

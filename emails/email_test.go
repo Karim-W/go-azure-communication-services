@@ -1,9 +1,11 @@
-package emails
+package emails_test
 
 import (
 	"context"
 	"os"
 	"testing"
+
+	"github.com/karim-w/go-azure-communication-services/emails"
 )
 
 func TestEmailClient(t *testing.T) {
@@ -14,19 +16,19 @@ func TestEmailClient(t *testing.T) {
 	if host == "" || key == "" || recipient == "" || sender == "" {
 		t.Skip("Skipping test because environment variables are not set")
 	}
-	client := NewClient(host, key, nil)
-	payload := Payload{
-		Headers: Headers{
+	client := emails.NewClient(host, key, nil)
+	payload := emails.Payload{
+		Headers: emails.Headers{
 			ClientCorrelationID:    "1234",
 			ClientCustomHeaderName: "ClientCustomHeaderValue",
 		},
 		SenderAddress: sender,
-		Content: Content{
+		Content: emails.Content{
 			Subject:   "Test email",
 			PlainText: "This is a test email",
 		},
-		Recipients: Recipients{
-			To: []ReplyTo{
+		Recipients: emails.Recipients{
+			To: []emails.ReplyTo{
 				{
 					Address: recipient,
 				},
