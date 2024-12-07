@@ -34,6 +34,7 @@ func TestEmailClient(t *testing.T) {
 				},
 			},
 		},
+		Attachments: []Attachment{},
 	}
 
 	result, err := client.SendEmail(context.TODO(), payload)

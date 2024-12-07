@@ -2,8 +2,9 @@ package emails
 
 import (
 	"context"
+	"encoding/json"
 
-	"github.com/karim-w/go-azure-communication-services/client"
+	"github.com/karim-w/go-azure-communication-services/clientv2"
 )
 
 type Client interface {
@@ -14,7 +15,7 @@ type Client interface {
 }
 
 type _client struct {
-	cl      *client.Client
+	cl      clientv2.Client
 	host    string
 	version string
 }
@@ -24,16 +25,15 @@ func NewClient(
 	key string,
 	version *string,
 ) Client {
-	cl := client.New(key)
+	cl := clientv2.New(key)
 	v := defaultAPIVersion
 	if version != nil {
 		v = *version
 	}
-	apiVersion := "api-version=" + v
 	return &_client{
 		cl:      cl,
 		host:    host,
-		version: apiVersion,
+		version: v,
 	}
 }
 
@@ -44,8 +44,24 @@ func NewClient(
 func (c *_client) SendEmail(
 	ctx context.Context,
 	payload Payload,
-) (EmailResult, error) {
-	var result EmailResult
-	err := c.cl.Post(ctx, c.host, "/emails:send", c.version, payload, &result)
-	return result, err
+) (result EmailResult, err error) {
+	res, err := c.cl.Post(
+		ctx,
+		c.host,
+		"/emails:send",
+		map[string][]string{
+			"api-version": {c.version},
+		},
+		payload,
+	)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(res, &result)
+	if err != nil {
+		return
+	}
+
+	return
 }

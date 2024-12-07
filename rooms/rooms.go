@@ -2,8 +2,9 @@ package rooms
 
 import (
 	"context"
+	"encoding/json"
 
-	"github.com/karim-w/go-azure-communication-services/client"
+	"github.com/karim-w/go-azure-communication-services/clientv2"
 )
 
 type Rooms interface {
@@ -47,14 +48,14 @@ type Rooms interface {
 
 type _RoomsClient struct {
 	host   string
-	client *client.Client
+	client clientv2.Client
 }
 
 func New(
 	host string,
 	key string,
 ) Rooms {
-	client := client.New(key)
+	client := clientv2.New(key)
 	return &_RoomsClient{host, client}
 }
 
@@ -66,77 +67,100 @@ func (c *_RoomsClient) CreateRoom(
 		return nil, ERR_ROOMS_NIL_OPTIONS
 	}
 	responseModel := &RoomModel{}
-	err := c.client.Post(
+	response, err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms",
-		"api-version="+apiVersion,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 		options,
-		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = json.Unmarshal(response, &responseModel)
+	if err != nil {
+		return nil, err
+	}
+
 	return responseModel, nil
 }
 
 func (c *_RoomsClient) GetRoom(
 	ctx context.Context,
 	roomId string,
-) (*RoomModel, error) {
-	responseModel := &RoomModel{}
-	err := c.client.Get(
+) (result *RoomModel, err error) {
+	res, err := c.client.Get(
 		ctx,
 		c.host,
 		"/rooms/"+roomId,
-		"api-version="+apiVersion,
-		&responseModel,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+
+	err = json.Unmarshal(res, &result)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func (c *_RoomsClient) UpdateRoom(
 	ctx context.Context,
 	roomId string,
 	options *UpdateRoomOptions,
-) (*RoomModel, error) {
+) (res *RoomModel, err error) {
 	if options == nil {
 		return nil, ERR_ROOMS_NIL_OPTIONS
 	}
-	responseModel := &RoomModel{}
-	err := c.client.Patch(
+
+	body, err := c.client.Patch(
 		ctx,
 		c.host,
 		"/rooms/"+roomId,
-		"api-version="+apiVersion,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 		RoomModel{
 			ValidFrom:      options.ValidFrom,
 			ValidUntil:     options.ValidUntil,
 			Participants:   options.Participants,
 			RoomJoinPolicy: options.RoomJoinPolicy,
 		},
-		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
-	return responseModel, nil
+
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return
 }
 
 func (c *_RoomsClient) DeleteRoom(
 	ctx context.Context,
 	roomId string,
 ) error {
-	return c.client.Delete(
+	_, err := c.client.Delete(
 		ctx,
 		c.host,
 		"/rooms/"+roomId,
-		"api-version="+apiVersion,
-		nil,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 	)
+
+	return err
 }
 
 func (c *_RoomsClient) AddParticipants(
@@ -145,17 +169,25 @@ func (c *_RoomsClient) AddParticipants(
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
 	responseModel := &roomParticipantsUpdate{}
-	err := c.client.Post(
+
+	body, err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:add",
-		"api-version="+apiVersion,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 		roomParticipantsUpdate{Participants},
-		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = json.Unmarshal(body, &responseModel)
+	if err != nil {
+		return nil, err
+	}
+
 	return &responseModel.Participants, nil
 }
 
@@ -164,16 +196,23 @@ func (c *_RoomsClient) GetParticipants(
 	roomId string,
 ) (*[]RoomParticipant, error) {
 	responseModel := &roomParticipantsUpdate{}
-	err := c.client.Get(
+	body, err := c.client.Get(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants",
-		"api-version="+apiVersion,
-		&responseModel,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = json.Unmarshal(body, &responseModel)
+	if err != nil {
+		return nil, err
+	}
+
 	return &responseModel.Participants, nil
 }
 
@@ -183,17 +222,25 @@ func (c *_RoomsClient) UpdateParticipants(
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
 	responseModel := &roomParticipantsUpdate{}
-	err := c.client.Post(
+	body, err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:update",
-		"api-version="+apiVersion,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
+
 		roomParticipantsUpdate{Participants},
-		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = json.Unmarshal(body, &responseModel)
+	if err != nil {
+		return nil, err
+	}
+
 	return &responseModel.Participants, nil
 }
 
@@ -203,16 +250,23 @@ func (c *_RoomsClient) RemoveParticipants(
 	Participants ...RoomParticipant,
 ) (*[]RoomParticipant, error) {
 	responseModel := &roomParticipantsUpdate{}
-	err := c.client.Post(
+	body, err := c.client.Post(
 		ctx,
 		c.host,
 		"/rooms/"+roomId+"/participants:remove",
-		"api-version="+apiVersion,
+		map[string][]string{
+			"api-version": {apiVersion},
+		},
 		roomParticipantsUpdate{Participants},
-		&responseModel,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	err = json.Unmarshal(body, &responseModel)
+	if err != nil {
+		return nil, err
+	}
+
 	return &responseModel.Participants, nil
 }

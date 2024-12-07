@@ -31,7 +31,7 @@ type ACSIdentity struct {
 	ExpiresOn time.Time `json:"expiresOn"`
 }
 
-const apiVersion = "2022-10-01"
+const apiVersion = "2023-10-01"
 
 var (
 	ERR_NIL_OPTIONS            = errors.New("options cannot be nil")
