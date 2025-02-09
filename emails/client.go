@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/karim-w/go-azure-communication-services/clientv2"
+	"github.com/karim-w/go-azure-communication-services/logger"
 )
 
 type Client interface {
@@ -26,6 +27,31 @@ func NewClient(
 	version *string,
 ) Client {
 	cl := clientv2.New(key)
+	
+	v := defaultAPIVersion
+	if version != nil {
+		v = *version
+	}
+	return &_client{
+		cl:      cl,
+		host:    host,
+		version: v,
+	}
+}
+
+func NewClientWithLogger(
+	host string,
+	key string,
+	version *string,
+	Logger logger.Logger,
+	
+) Client {
+
+	if Logger == nil {
+		Logger = logger.Default()
+	}
+	cl := clientv2.NewWithLogger(key , Logger)	
+
 	v := defaultAPIVersion
 	if version != nil {
 		v = *version
