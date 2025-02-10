@@ -16,7 +16,7 @@ func TestEmailClient(t *testing.T) {
 	if host == "" || key == "" || recipient == "" || sender == "" {
 		t.Skip("Skipping test because environment variables are not set")
 	}
-	client := emails.NewClient(host, key, nil)
+	client := emails.NewClientWithLogger(host, key, nil  , nil)
 	payload := emails.Payload{
 		Headers: emails.Headers{
 			ClientCorrelationID:    "1234",
